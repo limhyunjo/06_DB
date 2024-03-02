@@ -295,7 +295,7 @@ WHERE  SALARY >= 3000000
 AND    SALARY <= 5000000; -- 6행
 
 -- EMPLOYEE 테이블에서
--- 급여가 300만 이상, 500만 이하인 사원의
+-- 급여가 300만 미만, 500만 초과인 사원의
 -- 사번, 이름, 급여 조회
 SELECT EMP_ID, EMP_NAME, SALARY
 FROM   EMPLOYEE

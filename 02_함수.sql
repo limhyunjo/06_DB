@@ -79,14 +79,14 @@ ORDER BY "이메일 아이디";
 -- 문자열 공백 제거
 SELECT '   기  준   ',
          TRIM (LEADING ' ' FROM'   기  준   '), -- 앞쪽 공백 제거
-         TRIM (TRAILING ' ' FROM'   기  준   '), -- 뒷쪽 공백 제거
+         TRIM (TRAILING ' ' FROM'   기  준   '), -- 뒤쪽 공백 제거
          TRIM (BOTH ' ' FROM'   기  준   ') -- 양쪽 공백 제거
 FROM DUAL;
 
 -- 특정 문자열 제거
 SELECT '###기  준###',
          TRIM (LEADING  '#' FROM'###기  준###'), -- 앞쪽 공백 제거
-         TRIM (TRAILING '#' FROM'###기  준###'), -- 뒷쪽 공백 제거
+         TRIM (TRAILING '#' FROM'###기  준###'), -- 뒤쪽 공백 제거
          TRIM (BOTH      '#' FROM'###기  준###') -- 양쪽 공백 제거
 FROM DUAL;
 

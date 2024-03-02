@@ -396,6 +396,177 @@ OR DEPT_CODE IS NULL; -- 11행
  * */
 
 -- EMPLOYEE 테이블에서 성이 '전' 씨인 사원의 사번, 이름 조회
+SELECT EMP_ID, EMP_NAME FROM EMPLOYEE WHERE EMP_NAME LIKE '전%';
+
+-- EMPLOYEE 테이블에서 이름이 '수' 로 끝나는 사원의 사번, 이름 조회
+SELECT EMP_ID, EMP_NAME FROM EMPLOYEE WHERE EMP_NAME LIKE '%수';
+
+-- EMPLOYEE 테이블에서 이름에 '하' 가 포함되는 사원의 사번, 이름 조회
+SELECT EMP_ID, EMP_NAME
+FROM EMPLOYEE
+WHERE EMP_NAME LIKE '%하%' OR  EMP_NAME LIKE '%유';
+
+-- EMPLOYEE 테이블에서 이름이 '전' 시작, '돈' 끝나는 사원의 사번, 이름 조회
+SELECT EMP_ID, EMP_NAME
+FROM EMPLOYEE 
+WHERE EMP_NAME LIKE '전%돈';
+
+-- EMPLOYEE 테이블에서 
+-- 전화번호가 '010'으로 시작하는 사원의 이름, 전화번호 조회
+ SELECT EMP_NAME, PHONE
+ FROM EMPLOYEE 
+-- WHERE PHONE LIKE '010%';
+ WHERE PHONE LIKE '010________';
+
+/* 와일드 카드 _% 같이 사용 */
+-- EMPLOYEE 테이블에서
+-- EMAIL의 아이디 (@ 앞의 글자) 의 글자 수가 5글자인 사원의 
+-- 이름, EMAIL 조회
+SELECT EMP_NAME, EMAIL
+FROM EMPLOYEE
+WHERE EMAIL LIKE '_____@%';
+
+-- EMPLOYEE 테이블에서
+-- 이메일의 아이디 중 '_' 앞 쪽 글자의 수가 3글자인 사원의
+-- 사번, 이름, 이메일 조회
+SELECT EMP_ID, EMP_NAME , EMAIL 
+FROM EMPLOYEE
+WHERE EMAIL LIKE '____%'; 
+
+-- 문제점 : 
+-- 기준으로 삼은 문자 ' _ ' 와 
+-- LIKE의 와일드 카드 '_'의 표기법이 동일하여
+-- 모든 표기법이 동일해져
+-- 모든 '_'가 와일드 카드로 인식됨
+
+--> '____%' : 앞에 4글자 있고, 뒤에 아무거나 
+-- == 4글자 이상
+
+-- 해결 방법 :
+-- LIKE의 ESCAPE 옵션 사용하기
+
+--> ESCAPE 옵션 : 와일드 카드의 의미를 벗어나 단순 문자열로 인식
+--> 적용 범위 : 특수문자 뒤 한 글자
+
+SELECT EMP_NAME, EMAIL
+FROM EMPLOYEE 
+WHERE EMAIL LIKE '___#_%' ESCAPE '#';
+
+
+
+------------------------------------------------------------
+
+/* **** ORDER BY 절 ****
+ * 
+ * - SELECT 문의 조회 결과 ( RESULT SET ) 를 정렬할 때 사용하는 구문
+ * 
+ * *** SELECT 구문에서 제일 마지막에 해석된다 !***
+ * 
+ * [ 작성법 ]
+ * 3 : SELECT 컬럼명 AS 별칭, 컬럼명, 컬럼명, ....
+ * 1 : FROM 테이블명
+ * 2 : WHERE 조건식
+ * 4 : ORDER BY 컬럼명 | 별칭 | 컬럼 순서 [ 오름/ 내림 차순]
+ *                   [ NULLS FIRST | LAST ]
+ */
+
+-- EMPLOYEE 테이블에서
+-- 모든 사원의 이름, 급여 조회
+-- 단, 급여 오름차순으로 정렬
+/*2*/ SELECT EMP_NAME, SALARY
+/*1*/ FROM EMPLOYEE
+/*3*/ ORDER BY SALARY ASC; -- ASC (ascending) : 오름차순 / 생략 가능 , 기본 오름차순임
+
+-- EMPLOYEE 테이블에서
+-- 모든 사원의 이름, 급여 조회
+-- 단, 급여 내림차순으로 정렬
+SELECT EMP_NAME, SALARY
+FROM EMPLOYEE
+ORDER BY SALARY DESC; -- DESC (descending) : 내림차순
+
+-- EMPLOYEE 테이블에서
+-- 부서 코드가 'D5', 'D6', 'D9'인 사원의
+-- 사번, 이름, 부서코드를
+-- 부서코드 오름차순 조회
+SELECT EMP_ID, EMP_NAME, DEPT_CODE
+FROM EMPLOYEE 
+WHERE DEPT_CODE IN ('D5', 'D6', 'D9')
+ORDER BY DEPT_CODE;
+
+/* 컬럼 순서를 이용해 정렬하기 */
+
+-- EMPLOYEE 테이블에서
+-- 급여가 300만 이상, 600만 이하의
+-- 사번, 이름, 급여를 이름 내림차순으로 조회
+SELECT EMP_ID, EMP_NAME, SALARY 
+FROM EMPLOYEE 
+WHERE SALARY BETWEEN 3000000 AND 6000000
+ORDER BY 2 DESC; -- 숫자로 컬럼을 지정해서 사용 가능하지만 추천하지 않음
+
+
+/* ORDER BY 절에 수식 적용 */
+
+-- EMPLOYEE 테이블에서 이름, 연봉을 연봉 내림차순으로 조회
+SELECT EMP_NAME, SALARY *12 연봉
+FROM EMPLOYEE 
+ORDER BY SALARY *12  DESC;
+
+/* WHERE 절에서는 별칭 사용 불가 확인 */
+
+SELECT EMP_NAME, DEPT_CODE 부서코드
+FROM EMPLOYEE 
+WHERE 부서코드 = 'D6';
+-- ORA-00904 : "부서코드" : 부적합한 식별자 // 오라클의 에러 번호로 검색하면 오류 고칠 수 있음
+--> "부서코드 " 컬럼이 존재하지 않음 
+-- // 해석 순서에 따라 WHERE절을 먼저 해석해서 SELECT절의 별칭이 해석되지 않음
+
+/* NULLS FIRST / LAST 옵션 적용하기 */
+
+-- 모든 사원의 이름, 전화번호 조회
+
+-- 오름차순 + NULLS FIRST (NULL 인 경우 제일 위에)
+SELECT EMP_NAME, PHONE
+FROM EMPLOYEE 
+ORDER BY PHONE NULLS FIRST;
+
+-- 오름차순 + NULLS LAST (NULL 인 경우 제일 아래)
+SELECT EMP_NAME, PHONE
+FROM EMPLOYEE 
+ORDER BY PHONE NULLS LAST;
+
+-- 내림차순 + NULLS FIRST (NULL 인 경우 제일 위에)
+SELECT EMP_NAME, PHONE
+FROM EMPLOYEE 
+ORDER BY PHONE DESC NULLS FIRST; -- 정렬 기준 --> NULL 위치 순서대로 해석
+
+/**** 정렬 중첩 ****/
+-- 먼저 작성된 정렬 기준을 깨지 않고
+-- 다음 작성된 정렬 기준을 적용
+
+-- EMPLOYEE 테이블에서
+-- 이름, 부서코드, 급여를
+-- 부서코드 오름차순, 급여 내림 차순으로 조회
+SELECT EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE 
+ORDER BY DEPT_CODE,  SALARY DESC;
+
+
+-- EMPLOYEE 테이블에서
+-- 이름, 부서코드, 직급코드(JOB_CODE)를
+-- 부서코드 오름차순, 직급코드 내림차순, 이름 오름차순으로 조회
+SELECT EMP_NAME, DEPT_CODE, JOB_CODE 
+FROM EMPLOYEE 
+ORDER BY DEPT_CODE , JOB_CODE DESC, EMP_NAME; -- 같은 부서의 같은 직급이면 이름 오름차순
+
+
+
+
+
+
+
+
+
+
 
 
 
