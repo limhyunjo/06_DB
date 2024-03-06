@@ -1,0 +1,356 @@
+
+--1 테이블 만들기 
+--2 유저 유저명 유저 정보
+
+ --유저명 varchar2(100)
+ --#varchar2 란 : 숫자 영어 한글 등 모든  문자를 넣을 수 있는 공간
+ -- 기존의 varchar1은 공간이 작아서 2가 나온 것임
+ -- varchar2(100) 의 100은 저장공간
+
+-- PRIMARY KEY : 기본 값/ 만들어진 정보에 기본으로 부여되는 키
+-- 처음에 테스트나 유저에게 보여주기 위해 혹은 등급을 부여하기 위해 insert 사용
+
+-- TB_GRADE 테이블 생성 
+CREATE TABLE TB_GRADE ( GRADE_CODE VARCHAR2(10) PRIMARY KEY, GRADE_NAME VARCHAR2(20) );
+
+-- TB_AREA 테이블 생성 
+CREATE TABLE TB_AREA ( AREA_CODE VARCHAR2(10) PRIMARY KEY, AREA_NAME VARCHAR2(20) );
+
+-- TB_MEMBER 테이블 생성 
+CREATE TABLE TB_MEMBER ( MEMBERID VARCHAR2(20) PRIMARY KEY, 
+MEMBERPWD VARCHAR2(20), MEMBER_NAME VARCHAR2(50), GRADE VARCHAR2(10), AREA_CODE VARCHAR2(10), 
+FOREIGN KEY (GRADE) REFERENCES TB_GRADE(GRADE_CODE), FOREIGN KEY (AREA_CODE) REFERENCES TB_AREA(AREA_CODE ) );
+
+-- 데이터 삽입 -- TB_GRADE 테이블 데이터 삽입 
+INSERT INTO TB_GRADE (GRADE_CODE, GRADE_NAME) VALUES ('10', '일반회원'); 
+INSERT INTO TB_GRADE (GRADE_CODE, GRADE_NAME) VALUES ('20', '우수회원'); 
+INSERT INTO TB_GRADE (GRADE_CODE, GRADE_NAME) VALUES ('30', '특별회원');
+
+-- TB_AREA 테이블 데이터 삽입 
+INSERT INTO TB_AREA (AREA_CODE, AREA_NAME) VALUES ('02', '서울'); 
+INSERT INTO TB_AREA (AREA_CODE, AREA_NAME) VALUES ('031', '경기'); 
+INSERT INTO TB_AREA (AREA_CODE, AREA_NAME) VALUES ('032', '인천');
+
+-- TB_MEMBER 테이블 데이터 삽입
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('hong01', 'pass01', '홍길동', '10', '02'); 
+
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('leess99', 'pass02', '이순신', '10', '032'); 
+
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('SS50000', 'pass03', '신사임당', '30', '031'); 
+
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('1u93', 'pass04', '아이유', '30', '02'); 
+
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('pcs1234', 'pass05', '박철수', '20', '031'); 
+
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('you_is', 'pass06', '유재석', '10', '02'); 
+
+INSERT INTO TB_MEMBER (MEMBERID, MEMBERPWD, MEMBER_NAME, GRADE, AREA_CODE) 
+VALUES ('kyh9876', 'pass07', '김영희', '20', '031');
+
+
+-- 모든 회원의 이름과 등급을 조회하기
+ SELECT MEMBER_NAME, GRADE_NAME
+ FROM TB_MEMBER  m
+ JOIN TB_GRADE g ON m.GRADE = g.GRADE_NAME;
+ 
+-- 등급이 일반회원인 회원을 조회
+SELECT * FROM TB_MEMBER
+WHERE GRADE ='10';
+
+-- 경기 지역에 거주하는 회원의 아이디와 이름 조회하기 
+SELECT MEMBERID , MEMBER_NAME, AREA_CODE 
+FROM TB_MEMBER
+WHERE AREA_CODE ='031';
+
+-- 등급이 우수회원이고 
+-- 이름에 '이'가 포함된 회원의 이름을 조회
+SELECT MEMBER_NAME, GRADE
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON (GRADE_CODE=GRADE)
+WHERE MEMBER_NAME LIKE '%이%'
+AND GRADE_NAME ='우수회원';
+
+-- 등급이 일반회원인 회원의 이름을 알파벳 순으로 정렬해서 조회
+SELECT MEMBER_NAME, MEMBERID, GRADE
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON (GRADE_CODE=GRADE)
+WHERE  GRADE_NAME ='일반회원'
+ORDER BY MEMBERID;
+
+-- 등급이 특별회원이고 이름이 '신'이 포함된 회원의 아이디와 이름 조회
+SELECT MEMBER_NAME, MEMBERID
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON (GRADE_CODE=GRADE)
+WHERE  MEMBER_NAME LIKE '%신%'
+AND GRADE_NAME ='특별회원';
+
+
+
+-- 서울 지역에 거주하고 등급이 일반회원인 사람의 이름 조회
+SELECT MEMBER_NAME, GRADE_NAME 등급
+FROM TB_MEMBER tm 
+JOIN TB_AREA USING  (AREA_CODE) 
+JOIN TB_GRADE ON (GRADE_CODE=GRADE)
+WHERE  GRADE_NAME ='일반회원'
+AND AREA_NAME ='서울';
+
+SELECT MEMBER_NAME
+FROM TB_MEMBER tm 
+JOIN TB_AREA ta ON tm.AREA_CODE = ta.AREA_CODE 
+JOIN TB_GRADE tg ON tm.GRADE = tg.GRADE_CODE 
+WHERE ta.AREA_CODE ='서울' AND tg.GRADE_NAME ='일반회원';
+
+
+-- 특정 지역의 회원 수 조회
+SELECT AREA_NAME, COUNT(*)|| '명'
+FROM TB_MEMBER tm
+JOIN TB_AREA USING  (AREA_CODE) 
+GROUP BY AREA_NAME;
+
+-- 특정 회원의 지역 정보 조회
+SELECT MEMBER_NAME, AREA_NAME 
+FROM TB_MEMBER tm
+JOIN TB_AREA USING  (AREA_CODE);
+
+-- 일반회원과 우수회원 수 비교
+SELECT GRADE_NAME, COUNT(*)
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON (GRADE_CODE=GRADE)
+WHERE GRADE_NAME IN ('일반회원', '우수회원')
+GROUP BY GRADE_NAME;
+
+--S550000 회원의 등급과 이름 조회
+SELECT MEMBER_NAME, GRADE
+FROM TB_MEMBER tm
+WHERE MEMBERID ='SS50000';
+
+
+-- SELECT JOIN 을 활용한 서브쿼리 예제
+-- TB_MEMBER 테이블에서 GRADE 가 우수회원 이면서
+-- AREA_CODE 가 '031'인 회원의 회원 이름 조회하기
+
+SELECT MEMBER_NAME
+FROM TB_MEMBER
+WHERE GRADE = (SELECT GRADE_CODE 
+                   FROM TB_GRADE 
+                   WHERE GRADE_NAME ='우수회원') 
+AND AREA_CODE ='031';
+
+
+--TB_MEMBER 테이블에서 
+-- GRADE 가 일반회원이면서
+-- AREA_CODE 가 02가 아닌 회원의 아이디를 조회
+SELECT MEMBERID
+FROM TB_MEMBER tm 
+WHERE GRADE =(
+  SELECT GRADE_CODE
+  FROM TB_GRADE tg
+  WHERE GRADE_NAME ='일반회원')
+AND AREA_CODE !='02';
+
+
+-- TB_MEMBER 테이블에서 GRADE 가 '특별회원' 이면서
+-- AREA_CODE 가 '031'이 아닌 회원들의 회원 이름
+SELECT MEMBER_NAME
+FROM TB_MEMBER tm 
+WHERE GRADE =(
+  SELECT GRADE_CODE
+  FROM TB_GRADE tg
+  WHERE GRADE_NAME ='특별회원')
+AND AREA_CODE !='031';
+
+-- 검색할 때 원하는 데이터만 조회
+-- 안그러면 전체 다 조회하면서 컴퓨터 속도가 느려짐
+
+-- TB_MEMBER 테이블에서 AREA_CODE가 031이거나 032인 회원들 이름
+SELECT MEMBER_NAME, AREA_CODE 
+FROM TB_MEMBER tm 
+WHERE AREA_CODE IN ('031', '032');
+
+-- SELECT rownum 활용된 예제
+-- ROWNUM 이란 ? SELECT 한 데이터에 번호를 붙이는 것 // 번호는 설정하지 않으면 랜덤으로 나옴
+-- 번호를 붙여 원하는 만큼의 갯수만 가져오고 싶을 때 사용
+
+-- TB_MEMBER 회원들 중에서 ROWNUM이 3 이하인 데이터 조회
+SELECT *
+FROM TB_MEMBER tm 
+WHERE ROWNUM <=3;
+
+-- TB_MEMBER 테이블에서 
+-- 지역코드가 031인 회원 중에서 처음 5명 이름
+SELECT MEMBERID, MEMBER_NAME
+FROM TB_MEMBER
+WHERE AREA_CODE ='031' AND ROWNUM<=3;
+
+
+-- TB_MEMBER 이름순으로 상위 3개 멤버 조회하기
+-- 서브 쿼리 오더 바이
+SELECT MEMBER_NAME
+FROM TB_MEMBER tm 
+WHERE ROWNUM <=3
+ORDER BY MEMBER_NAME;
+
+SELECT MEMBER_NAME, MEMBERID 
+FROM (
+ SELECT MEMBERID, MEMBER_NAME, ROWNUM AS RN
+ FROM TB_MEMBER tm 
+ ORDER BY MEMBER_NAME)
+ WHERE RN <=3;
+
+
+
+
+
+--1: TB_GRADE 테이블에서 모든 등급 코드와 등급 이름을 조회
+SELECT *
+FROM TB_GRADE tg;
+
+--2: TB_AREA 테이블에서 지역 코드가 '02'인 지역의 이름을 조회
+SELECT AREA_NAME 지역 FROM TB_AREA ta WHERE AREA_CODE ='02';
+
+--3: TB_MEMBER 테이블에서 모든 회원의 이름과 등급을 조회
+SELECT MEMBER_NAME, GRADE FROM TB_MEMBER tm;
+
+--4: TB_MEMBER 테이블에서 이름이 '이순신'인 회원의 아이디를 조회
+SELECT MEMBERID 아이디, MEMBER_NAME 이름 FROM TB_MEMBER tm WHERE MEMBER_NAME='이순신';
+
+--5: TB_MEMBER 테이블에서 등급이 '20'인 회원의 이름과 지역 코드를 조회
+SELECT MEMBER_NAME, AREA_CODE, GRADE FROM TB_MEMBER tm WHERE  GRADE = '20';
+
+--6: TB_MEMBER 테이블에서 지역이 '서울'인 회원의 아이디와 이름을 조회
+
+SELECT MEMBERID 아이디, MEMBER_NAME 이름 , AREA_NAME 지역 FROM TB_MEMBER tm 
+JOIN TB_AREA ta  USING (AREA_CODE) WHERE AREA_NAME ='서울';
+
+--7: TB_MEMBER 테이블에서 등급이 '특별회원'인 회원의 수를 조회
+
+ SELECT COUNT(*) -- 순서상 SELECT가 뒷 순이라 이미 필터가 되어서 전체로 선택해도 됨
+ FROM  TB_MEMBER 
+ JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+ WHERE GRADE_NAME='특별회원';
+
+--8: TB_MEMBER 테이블에서 이름이 '홍길동'이거나 '박철수'인 회원의 아이디를 조회
+SELECT MEMBERID, MEMBER_NAME  FROM TB_MEMBER tm 
+WHERE MEMBER_NAME ='홍길동' OR MEMBER_NAME = '박철수';
+
+--9: TB_MEMBER 테이블에서 등급이 '우수회원'이면서 지역 코드가 '031'인 회원의 이름을 조회
+SELECT MEMBER_NAME
+FROM TB_MEMBER tm 
+ JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+WHERE GRADE_NAME='우수회원' AND AREA_CODE='031';
+
+--10: TB_MEMBER 테이블에서 아이디가 'kyh9876'인 회원의 등급을 조회
+SELECT MEMBER_NAME, GRADE_NAME
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+WHERE MEMBERID ='kyh9876';
+
+--11: TB_MEMBER 테이블에서 등급이 '일반회원'이면서 지역이 '경기' 또는 '인천'인 회원의 아이디와 이름을 조회
+SELECT MEMBERID, MEMBER_NAME
+FROM TB_MEMBER tm 
+JOIN TB_AREA ta  USING (AREA_CODE) 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+WHERE GRADE_NAME ='일반회원' AND AREA_NAME IN ('경기', '인천');
+
+--12: TB_MEMBER 테이블에서 등급이 '특별회원'인 회원 중에서 지역이 '서울'이 아닌 회원의 수를 조회
+SELECT COUNT(*) FROM TB_MEMBER tm JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+JOIN TB_AREA ta  USING (AREA_CODE) 
+WHERE GRADE_NAME ='특별회원' AND AREA_NAME != '서울';
+
+
+--13: TB_MEMBER 테이블에서 등급이 '우수회원'이면서 이름이 '김영희'인 회원의 등급과 지역을 조회
+SELECT MEMBER_NAME, GRADE_NAME , AREA_NAME 
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+JOIN TB_AREA ta  USING (AREA_CODE) 
+WHERE GRADE_NAME ='우수회원' AND MEMBER_NAME= '김영희';
+
+--14: TB_MEMBER 테이블에서 등급이 '일반회원'이고 지역이 '경기'인 회원 중에서 
+--가입일이 2024년 3월 1일 이후인 회원의 이름을 조회
+SELECT MEMBER_NAME 
+FROM TB_MEMBER tm JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+JOIN TB_AREA ta  USING (AREA_CODE) 
+WHERE MEMBER_NAME= (
+SELECT GRADE_NAME, AREA_NAME
+GRADE_NAME ='일반회원' AND AREA_NAME= '경기';
+
+
+
+--15: TB_MEMBER 테이블에서 등급이 '특별회원'이면서 아이디가 'SS50000'이거나 '1u93'인 회원의 지역을 조회
+SELECT MEMBERID, AREA_NAME FROM TB_MEMBER tm 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+JOIN TB_AREA ta  USING (AREA_CODE) 
+WHERE GRADE_NAME ='특별회원' AND MEMBERID = 'SS50000' OR MEMBERID= '1u93';
+
+
+--16: TB_MEMBER 테이블에서 등급이 '우수회원'이면서 이름에 '유'가 포함된 회원의 아이디를 조회
+SELECT MEMBERID
+FROM TB_MEMBER tm 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+JOIN TB_AREA ta USING (AREA_CODE) 
+WHERE GRADE_NAME ='우수회원'  AND MEMBER_NAME LIKE '%유%';
+
+--17: TB_MEMBER 테이블에서 등급이 '일반회원'이면서 가입일이 현재 날짜보다 이전인 회원의 수를 조회
+
+
+
+--18: TB_MEMBER 테이블에서 등급이 '특별회원'이면서 가장 오래된 회원의 아이디를 조회하
+
+--19: TB_MEMBER 테이블에서 등급이 '우수회원'이면서 이름이 '신사임당'이 아닌 회원의 수를 조회
+SELECT COUNT( * ) 
+FROM TB_MEMBER 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+WHERE GRADE_NAME ='우수회원'  AND MEMBER_NAME != '신사임당' ;
+GROUP BY MEBER_NAME;
+
+
+--20: TB_MEMBER 테이블에서 등급이 '일반회원'이면서 지역이 '서울'인 회원의 이름과 등급을 조회 단, 결과를 등급에 따라 내림차순으로 정렬
+SELECT MEMBER_NAME, AREA_NAME 지역 , GRADE_NAME 등급
+FROM TB_MEMBER tm 
+JOIN TB_AREA ta  USING (AREA_CODE) 
+JOIN TB_GRADE ON ( GRADE = GRADE_CODE)
+WHERE GRADE_NAME ='일반회원' AND AREA_NAME IN ('서울')
+ORDER BY 등급 DESC;
+
+
+
+
+-- JOIN DATE : 사용자가 가입한 날짜를 나타냄
+-- > 나중에 가입일을 표시할 이름 작성
+--sysdate : 내 컴퓨터에 현재 시간 
+-- TO_DATE : 'YYYY-MM-DD'
+--> 문자열로 저장된 데이터를 DATE형식으로 변환하는 함수
+--// hh mm ss 시 분 초 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
